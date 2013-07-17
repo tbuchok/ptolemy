@@ -1,0 +1,15 @@
+{
+  "name": "ptolemy",
+  "version": "0.0.0",
+  "description": "ORM for Node.js.",
+  "main": "index.js",
+  "scripts": {
+    "test": "set -e; for t in test/*.js; do node $t; done"
+  },
+  "author": "Tom Buchok <tom@buchok.com> (http://buchok.com/)",
+  "license": "BSD",
+  "devDependencies": {
+    "level": "~0.10.0",
+    "tap": "~0.4.3"
+  }
+}
