@@ -26,7 +26,7 @@ Ptolemy.all = function(cb) {
   _adapter.all(cb);
 };
 
-Ptolemy.prototype.key = function(id) {
+Ptolemy.prototype.key = function() {
   var result = '\xFF' + this.constructor.name + '\x00';
   return result;
 }
