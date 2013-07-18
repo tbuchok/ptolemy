@@ -66,7 +66,22 @@ Ptolemy.prototype.toObject = function() {
   return (errors.length) ? errors : object;
 }
 
+Ptolemy._hooks = { beforeSave: [], afterSave: [] };
+
+Ptolemy.beforeSave = function(fn) {
+  if (fn.constructor.name === 'Function')
+    Ptolemy._hooks['beforeSave'].push(fn);
+};
+
+Ptolemy.afterSave = function(fn) {
+  if (fn.constructor.name === 'Function')
+    Ptolemy._hooks['afterSave'].push(fn);
+};
+
 Ptolemy.prototype.save = function(cb) {
+  var self = this;
+  Ptolemy._hooks['beforeSave'].forEach(function(fn){ fn.call(self); });
+
   var key = this.key(this.id)
     , value = this.toObject()
   ;
@@ -75,9 +90,12 @@ Ptolemy.prototype.save = function(cb) {
     return (cb) ? cb(value) : this.emit('error', value);
 
   var handleSave = function(err) {
-    if (err) (cb) ? cb(err) : this.emit('error', err);
-    else 
-      if (cb) cb(err);
+    if (err) {
+      (cb) ? cb(err) : this.emit('error', err);
+    } else {
+     Ptolemy._hooks['afterSave'].forEach(function(fn){ fn.call(self) }); 
+     if (cb) cb(err);
+    }
   };
   var key = this._key + this._id
   _adapter.save(key, value, handleSave.bind(this));
@@ -87,7 +105,6 @@ Ptolemy.prototype.error = function(err) {
   this.emit('error', err);
 };
  
-// must be able to have pre/post validation functions
 // must be able to run queries
 // must be able to have relationships
 // must be able to run batch jobs
