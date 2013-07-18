@@ -39,4 +39,31 @@ model.save(function(err){
 });
 ```
 
-_More to come._
+## Validations
+
+_Needs some love._
+
+Models can validate the types of data sent, and verify existence, etc. Models are also able to handle pre/post callbacks.
+
+```javascript
+var Model = require('./model')
+  , adapter = require('adapter') // Pending documentation
+;
+Model.adapter(adapter);
+
+var model = new Model();
+model.foo = 'hi!';
+model.bar = '1'; 
+model.save(function(err) {
+  console.log(err); // `bar` should be a Number!
+});
+// Assuming we'll always get Strings for our Numbers
+// let's clean it up!
+Model.beforeSave(function(){
+  this.bar = parseInt(this.bar);
+});
+mode.save(function(err){
+  console.log(err === null); // No errors!
+});
+
+```
