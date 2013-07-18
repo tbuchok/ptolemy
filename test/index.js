@@ -34,6 +34,9 @@ test('inheritance', function(t) {
   util.inherits(Foo, Ptolemy);
   var foo = new Foo();
   t.ok(/^\xFFFoo\x00/.test(foo._key), 'It creates a key based on the constructor');
+  var p1 = new Ptolemy();
+  var p2 = new Ptolemy();
+  t.ok(p1._id !== p2._id, 'Different objects have different IDs');
   t.end();
 });
 
