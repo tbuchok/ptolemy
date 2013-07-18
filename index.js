@@ -13,6 +13,14 @@ function Ptolemy(data) {
 
   this._id = data._id || Date.now();
   this._key = this.key();
+  this._attrs = {};
+  this._types = {
+      'string'  : String
+    , 'num'     : Number
+    , 'array'   : Array
+    , 'object'  : Object
+    , 'date'    : Date
+  };
 
   // Model-specific properties.
 }
@@ -29,7 +37,11 @@ Ptolemy.all = function(cb) {
 Ptolemy.prototype.key = function() {
   var result = '\xFF' + this.constructor.name + '\x00';
   return result;
-}
+};
+
+Ptolemy.prototype.createAttr = function(attr, Type) {
+  this._attrs[attr] = new Type().constructor.name;
+};
 
 Ptolemy.find = function(id, cb) {
   var key = Ptolemy.prototype.key() + id;
@@ -39,23 +51,43 @@ Ptolemy.find = function(id, cb) {
   });
 };
 
+Ptolemy.prototype.toObject = function() {
+  var object = {};
+  var errors = [];
+  var looper = function(value) {
+    if (this._attrs[value] === this[value].constructor.name)
+      object[value] = this[value]
+    else
+      errors.push(value + ' type incorrect: expected' + this._attrs[value] + ' received ' + this[value].constructor.name);
+  };
+  Object.keys(this._attrs).forEach(looper.bind(this));
+  object['_id'] = this._id;
+  object['_key'] = this._key;
+  return (errors.length) ? errors : object;
+}
+
 Ptolemy.prototype.save = function(cb) {
   var key = this.key(this.id)
-    , value = 'b'; //this.toJSON()
+    , value = this.toObject()
+  ;
+
+  if (Array.isArray(value)) // Errors occured!
+    return (cb) ? cb(value) : this.emit('error', value);
 
   var handleSave = function(err) {
-    if (err) return cb(err);
-    cb(err);
+    if (err) (cb) ? cb(err) : this.emit('error', err);
+    else 
+      if (cb) cb(err);
   };
   var key = this._key + this._id
-  _adapter.save(key, { '_id': this._id }, handleSave.bind(this));
+  _adapter.save(key, value, handleSave.bind(this));
 };
 
 Ptolemy.prototype.error = function(err) {
   this.emit('error', err);
 };
  
-// must be able to have validations
+// must be able to have pre/post validation functions
 // must be able to run queries
 // must be able to have relationships
 // must be able to run batch jobs

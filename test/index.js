@@ -21,6 +21,12 @@ test('basic Ptolemy operations', function(t) {
   });
 });
 
+test('psuedo-async saving', function(t) {
+  var p = new Ptolemy();
+  p.save();
+  t.end();
+});
+
 test('inheritance', function(t) {
   function Foo(){
     Ptolemy.call(this);
@@ -29,4 +35,43 @@ test('inheritance', function(t) {
   var foo = new Foo();
   t.ok(/^\xFFFoo\x00/.test(foo._key), 'It creates a key based on the constructor');
   t.end();
+});
+
+test('attribute names', function(t) {
+  function Model() {
+    Ptolemy.call(this);
+    this.createAttr('string', String);
+    this.createAttr('number', Number);
+    this.createAttr('date', Date);
+    this.createAttr('object', Object);
+    this.createAttr('function', Function);
+    this.createAttr('ptolemy', Ptolemy);
+    this.createAttr('array', Array);
+  }
+  util.inherits(Model, Ptolemy);
+  var m = new Model();
+  t.equals(m._attrs['string'], 'String', 'Strings works');
+  t.equals(m._attrs['number'], 'Number', 'Number works');
+  t.equals(m._attrs['date'], 'Date', 'Dates works');
+  t.equals(m._attrs['object'], 'Object', 'Objects works');
+  t.equals(m._attrs['function'], 'Function', 'Functions works');
+  t.equals(m._attrs['ptolemy'], 'Ptolemy', 'Ptolemy (a.k.a custom constructors) works');
+  t.equals(m._attrs['array'], 'Array', 'Array works');
+  t.end();
+});
+
+test('attribute type validation', function(t) {
+  function Model() {
+    Ptolemy.call(this);
+    this.createAttr('foo', String);
+    this.createAttr('bar', Number);
+  }
+  util.inherits(Model, Ptolemy);
+  var m = new Model();
+  m.foo = 'works';
+  m.bar = 'oh no! should be a number!';
+  m.save(function(err) {
+    t.equals(err.length, 1, 'There is one error because `foo:String` works, but `bar:String` does not.');
+    t.end();
+  });
 });
