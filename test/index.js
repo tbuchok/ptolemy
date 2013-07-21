@@ -21,7 +21,7 @@ test('basic Ptolemy operations', function(t) {
   });
 });
 
-test('psuedo-async saving', function(t) {
+test('psuedo-sync saving', function(t) {
   var p = new Ptolemy();
   p.save();
   t.end();

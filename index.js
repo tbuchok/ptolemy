@@ -8,10 +8,17 @@ var _adapter = {
   , save : function(k, v, cb) { cb('#save not implemented') }
 };
 
+var guid = function () {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+      return v.toString(16);
+  });
+};
+
 function Ptolemy(data) {
   data = data || {};
 
-  this._id = data._id || Date.now();
+  this._id = data._id || guid();
   this._key = this.key();
   this._attrs = {};
   this._types = {
@@ -22,7 +29,7 @@ function Ptolemy(data) {
     , 'date'    : Date
   };
 
-  // Model-specific properties.
+  // Model-specific properties below ...
 }
 util.inherits(Ptolemy, events.EventEmitter);
 
@@ -50,6 +57,10 @@ Ptolemy.find = function(id, cb) {
     cb(null, new Ptolemy(data));
   });
 };
+
+Ptolemy.prototype.toJSON = function () {
+  return JSON.stringify(this.toObject());
+}
 
 Ptolemy.prototype.toObject = function() {
   var object = {};
