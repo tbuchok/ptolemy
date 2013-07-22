@@ -7,7 +7,7 @@ Ptolemy also devised and provided instructions on how to create maps both of the
 
 ## Usage
 
-Ptolemy, while awesome, is pretty strange word. Extending the generic ORM with a more specific model might be more helpful.
+Extending the generic ORM with a more specific model might be more helpful.
 
 Perhaps in a separate module, let's call it `./explorer.js`:
 
@@ -32,7 +32,6 @@ explorer.voyages = 4;
 explorer.save(function(err) {
   if (err) // Handle `err` :(
   // It works!
-});
 });
 ```
 
