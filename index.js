@@ -88,7 +88,7 @@ var create = function create(name) {
     , preHooks: []
     , addPreHook: addPreHook
     , postHooks: []
-    , addPostHook addPostHook
+    , addPostHook: addPostHook
   }
 }
 

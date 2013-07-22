@@ -71,14 +71,17 @@ test('attribute type validation', function(t) {
 
 test('hooks', function(t) {
   var Hook = Ptolemy.create('Hook');
+  var hook = Hook.createInstance();
   Hook.addPreHook(function(){
     t.ok(true, 'The pre hook was set');
+  });
+  Hook.addPreHook(function() {
+    t.equals(this, hook, 'Context is correct.');
   });
   Hook.addPostHook(function() {
     t.ok(true, 'The post hook was set');
     t.end();
   });
-  var hook = Hook.createInstance();
   hook.save();
 });
 
