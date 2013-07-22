@@ -8,8 +8,10 @@
   },
   "author": "Tom Buchok <tom@buchok.com> (http://buchok.com/)",
   "license": "BSD",
+  "dependencies":{
+    "level": "~0.10.0"
+    },
   "devDependencies": {
-    "level": "~0.10.0",
     "tap": "~0.4.3"
   }
 }
