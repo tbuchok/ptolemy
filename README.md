@@ -16,7 +16,7 @@ var Ptolemy = require('Ptolemy')
   , Explorer = Ptolemy.create('Explorer')
 ;
 
-Explorer.schema = Ptolemy.schema({ name: String, voyages: 4 });
+Explorer.schema = Ptolemy.schema({ name: String, voyages: Number });
 
 module.exports = Explorer;
 ```
