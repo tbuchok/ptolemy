@@ -38,10 +38,15 @@ var save = function save(cb) {
   var self = this;
   var errors = validate(self);
   if (errors) cb(errors.join('; '));
-
+  self.preHooks.forEach(function(fn){
+    fn.call(self);
+  });
   self._db.put(self._id, JSON.stringify(self), function(err) {
     if (cb) return cb(err);
     else if (err) emit('error', err);
+  });
+  self.postHooks.forEach(function(fn){
+    fn.call(self);
   });
 };
 
@@ -57,6 +62,16 @@ var find = function find(query, cb) {
   });
 };
 
+var addPreHook = function addPreHook(fn) {
+  var self = this;
+  self.preHooks.push(fn);
+};
+
+var addPostHook = function addPreHook(fn) {
+  var self = this;
+  self.postHooks.push(fn);
+};
+
 var create = function create(name) {
   
   if (Ptolemy.dbs[name] !== undefined)
@@ -70,6 +85,10 @@ var create = function create(name) {
     , createInstance: createInstance
     , save: save
     , find: find
+    , preHooks: []
+    , addPreHook: addPreHook
+    , postHooks: []
+    , addPostHook addPostHook
   }
 }
 

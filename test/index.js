@@ -69,18 +69,16 @@ test('attribute type validation', function(t) {
   });
 });
 
-// test('hooks', function(t) {
-//   var p = new Ptolemy();
-//   Ptolemy.beforeSave(function(){});
-//   Ptolemy.afterSave(function(){
-//     t.ok(true, 'Reaches the after save callback');
-//   });
-//   t.equals(1, Ptolemy._hooks['beforeSave'].length, 'It registers one before save hooks');
-//   t.equals(1, Ptolemy._hooks['afterSave'].length, 'It registers one after save hooks');
-//   Ptolemy.beforeSave(function() {
-//     t.equals(this.id, p.id, 'It properly stores the context');
-//     t.end();
-//   });
-//   p.save();
-// });
+test('hooks', function(t) {
+  var Hook = Ptolemy.create('Hook');
+  Hook.addPreHook(function(){
+    t.ok(true, 'The pre hook was set');
+  });
+  Hook.addPostHook(function() {
+    t.ok(true, 'The post hook was set');
+    t.end();
+  });
+  var hook = Hook.createInstance();
+  hook.save();
+});
 
