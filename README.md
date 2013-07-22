@@ -44,7 +44,7 @@ Models can validate the types of data sent, and verify existence, etc. Models ar
 ```javascript
 var Explorer = require('./explorer');
 
-var explorer = new Explorer();
+var explorer = Explorer.createInstance();
 explorer.name = 'Ferdinand Magellan';
 explorer.voyages = '2';
 explorer.save(function(err) {
