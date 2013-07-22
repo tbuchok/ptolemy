@@ -5,14 +5,55 @@ var Level = require('level')
   , events = require('events')
 ;
 
-var Ptolemy = {
-  dbs : {}
-};
-
 var guid = function() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
       return v.toString(16);
+  });
+};
+
+var createInstance = function createInstance(options) {
+  options = options || {};
+  var instance = Object.create(this);
+  instance._id = options._id || guid();
+  Object.keys(options).forEach(function(key) {
+    if (instance.schema.hasOwnProperty(key))
+      instance[key] = options[key]
+  });
+  var errors = validate(instance);
+  if (errors) throw new Error(errors.join('; '));
+  return instance;
+};
+
+var validate = function validate(model) {
+  var errors = [];
+  Object.keys(model.schema).forEach(function(key){
+    if (model[key] !== undefined && typeof model[key] !== model.schema[key])
+      errors.push('Expecting type ' + model.schema[key] + ' but got type ' + typeof key);
+  });
+  return (errors.length > 0) ? errors : undefined;
+};
+
+var save = function save(cb) {
+  var self = this;
+  var errors = validate(self);
+  if (errors) cb(errors.join('; '));
+
+  self._db.put(self._id, JSON.stringify(self), function(err) {
+    if (cb) return cb(err);
+    else if (err) emit('error', err);
+  });
+};
+
+var find = function find(query, cb) {
+  var self = this;
+  self._db.get(query, function(err, data) {
+    if (err) return cb(err);
+    try {
+      var options = JSON.parse(data);
+      var instance = self.createInstance(options);
+      cb(null, instance);
+    } catch(e) { cb(e); };
   });
 };
 
@@ -23,42 +64,12 @@ var create = function create(name) {
   
   Ptolemy.dbs[name] = name;
 
-  var _db = db.sublevel(name);
-
   return {
-      _db: _db
+      _db: db.sublevel(name)
     , schema: {}
-    , create: function(options) {
-      options = options || {};
-      var instance = Object.create(this);
-      instance._id = options._id || guid();
-      Object.keys(options).forEach(function(key) {
-        if (instance.schema.hasOwnProperty(key)) {
-          if (typeof options[key] === instance.schema[key])
-            instance[key] = options[key]
-          else
-            throw new Error('Expecting type ' + instance.schema[key] + ' but got type ' + typeof key);
-        }
-      });
-      return instance;
-    }
-    , save: function(cb) {
-      _db.put(this._id, JSON.stringify(this), function(err) {
-        if (cb) return cb(err);
-        else if (err) emit('error', err);
-      });
-    }
-    , find: function(query, cb) {
-      var self = this;
-      _db.get(query, function(err, data) {
-        if (err) return cb(err);
-        try {
-          var options = JSON.parse(data);
-          var instance = self.create(options);
-          cb(null, instance);
-        } catch(e) { cb(e); };
-      });
-    }
+    , createInstance: createInstance
+    , save: save
+    , find: find
   }
 }
 
@@ -72,8 +83,10 @@ var schema = function schema(attrs) {
   return result;
 }
 
-Ptolemy.create = create;
-Ptolemy.schema = schema;
+var Ptolemy = Object.create({ create: create
+                            , schema: schema
+                            , dbs: {} 
+                            });
 
 util.inherits(Ptolemy, events.EventEmitter)
 

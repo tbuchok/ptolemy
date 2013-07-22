@@ -5,7 +5,7 @@ var test = require('tap').test
 test('basic Ptolemy operations', function(t) {
   var Explorer = Ptolemy.create('Explorer');
   Explorer.schema = Ptolemy.schema({ name: String, voyages: Number });
-  var explorer = Explorer.create({ name: 'Christopher Columbus', voyages: 4 });
+  var explorer = Explorer.createInstance({ name: 'Christopher Columbus', voyages: 4 });
   t.ok(explorer, 'It creates instances');
   t.ok(explorer.save, 'It has a save method');
   explorer.save(function(err) {
@@ -21,7 +21,8 @@ test('basic Ptolemy operations', function(t) {
 test('psuedo-sync saving', function(t) {
   var P = Ptolemy.create('P');
   P.schema = Ptolemy.schema({});
-  var p = P.create({});
+  var p = P.createInstance({});
+  t.ok(p.save() === undefined, 'It saved without a callback!');
   t.end();
 });
 
@@ -29,51 +30,44 @@ test('attribute validation', function(t) {
   var Astronaut = Ptolemy.create('Astronaut');
   Astronaut.schema = Ptolemy.schema({ name: String, missions: Number });
   try {
-    var astronaut = Astronaut.create({ name: 'Neil Armstrong', missions: 'two' });
+    var astronaut = Astronaut.createInstance({ name: 'Neil Armstrong', missions: 'two' });
   } catch(e) {
     t.ok(e, 'Cannot set the wrong type of schema value');
     t.end();
   }
 });
 
-// test('attribute names', function(t) {
-//   function Model() {
-//     Ptolemy.call(this);
-//     this.createAttr('string', String);
-//     this.createAttr('number', Number);
-//     this.createAttr('date', Date);
-//     this.createAttr('object', Object);
-//     this.createAttr('function', Function);
-//     this.createAttr('ptolemy', Ptolemy);
-//     this.createAttr('array', Array);
-//   }
-//   util.inherits(Model, Ptolemy);
-//   var m = new Model();
-//   t.equals(m._attrs['string'], 'String', 'Strings works');
-//   t.equals(m._attrs['number'], 'Number', 'Number works');
-//   t.equals(m._attrs['date'], 'Date', 'Dates works');
-//   t.equals(m._attrs['object'], 'Object', 'Objects works');
-//   t.equals(m._attrs['function'], 'Function', 'Functions works');
-//   t.equals(m._attrs['ptolemy'], 'Ptolemy', 'Ptolemy (a.k.a custom constructors) works');
-//   t.equals(m._attrs['array'], 'Array', 'Array works');
-//   t.end();
-// });
+test('attribute names', function(t) {
+  var Model = Ptolemy.create('Model');
+  var schema = {
+      'string': String
+    , 'number': Number
+    , 'date': Date
+    , 'object': Object
+    , 'function': Function
+    , 'array': Array
+  }
+  Model.schema = Ptolemy.schema(schema);
+  t.equals(Model.schema['string'], 'string', 'Strings works');
+  t.equals(Model.schema['number'], 'number', 'Number works');
+  t.equals(Model.schema['date'], 'date', 'Dates works');
+  t.equals(Model.schema['object'], 'object', 'Objects works');
+  t.equals(Model.schema['function'], 'function', 'Functions works');
+  t.equals(Model.schema['array'], 'array', 'Array works');
+  t.end();
+});
 
-// test('attribute type validation', function(t) {
-//   function Model() {
-//     Ptolemy.call(this);
-//     this.createAttr('foo', String);
-//     this.createAttr('bar', Number);
-//   }
-//   util.inherits(Model, Ptolemy);
-//   var m = new Model();
-//   m.foo = 'works';
-//   m.bar = 'oh no! should be a number!';
-//   m.save(function(err) {
-//     t.equals(err.length, 1, 'There is one error because `foo:String` works, but `bar:String` does not.');
-//     t.end();
-//   });
-// });
+test('attribute type validation', function(t) {
+  var Validator = Ptolemy.create('Validator');
+  Validator.schema = Ptolemy.schema({ foo: String, bar: Number });
+  var v = Validator.createInstance();
+  v.foo = 'i am a string';
+  v.bar = 'oh no! i should be a number!';
+  v.save(function(err) {
+    t.ok(err, 'There was an error saving.');
+    t.end();
+  });
+});
 
 // test('hooks', function(t) {
 //   var p = new Ptolemy();
