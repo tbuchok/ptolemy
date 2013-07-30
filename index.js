@@ -1,8 +1,8 @@
 var Level = require('level')
   , SubLevel = require('level-sublevel')
-  , db = SubLevel(Level('./db-ptolemy'))
   , util = require('util')
   , events = require('events')
+  , db
 ;
 
 var guid = function() {
@@ -10,6 +10,10 @@ var guid = function() {
       var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
       return v.toString(16);
   });
+};
+
+var createDb = function(path) {
+  db = SubLevel(Level(path));
 };
 
 var createInstance = function createInstance(options) {
@@ -104,6 +108,7 @@ var schema = function schema(attrs) {
 
 var Ptolemy = Object.create({ create: create
                             , schema: schema
+                            , createDb: createDb
                             , dbs: {} 
                             });
 

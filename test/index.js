@@ -1,6 +1,15 @@
 var test = require('tap').test
-  , Ptolemy = require('..')
+  ,  fs = require('fs')
+  , Ptolemy = require('..');
 ;
+
+test('it creates the appropriate db dir', function(t) {
+  Ptolemy.createDb('./foo');
+  fs.readdir('./foo', function(err) {
+    t.notOk(err, 'No error creating the dir');
+    t.end();
+  });
+});
 
 test('basic Ptolemy operations', function(t) {
   var Explorer = Ptolemy.create('Explorer');
