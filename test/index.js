@@ -1,17 +1,22 @@
 var test = require('tap').test
-  ,  fs = require('fs')
+  , fs = require('fs')
+  , rmdir = require('rmdir')
   , Ptolemy = require('..');
 ;
 
 test('it creates the appropriate db dir', function(t) {
-  Ptolemy.createDb('./foo');
-  fs.readdir('./foo', function(err) {
+  Ptolemy.createDb('./db-test');
+  fs.readdir('./db-test', function(err) {
     t.notOk(err, 'No error creating the dir');
     t.end();
+  });
+  rmdir('./db-test', function(err, dirs, files) {
+    
   });
 });
 
 test('basic Ptolemy operations', function(t) {
+  Ptolemy.createDb('./db-ptolemy');
   var Explorer = Ptolemy.create('Explorer');
   Explorer.schema = Ptolemy.schema({ name: String, voyages: Number });
   var explorer = Explorer.createInstance({ name: 'Christopher Columbus', voyages: 4 });
